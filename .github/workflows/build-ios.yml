@@ -1,0 +1,39 @@
+name: Build Mihomo iOS arm64 Binary
+on:
+  push:
+    branches: [ Meta ]
+  workflow_dispatch: # 支持手动点按钮触发编译
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Go SDK
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Configure Go Proxy (speed up download)
+        run: go env -w GOPROXY=https://goproxy.cn,direct
+
+      - name: Resolve dependencies
+        run: go mod tidy
+
+      - name: Compile iOS arm64 executable
+        run: |
+          export CGO_ENABLED=0
+          export GOOS=ios
+          export GOARCH=arm64
+          go build -o mihomo ./
+
+      - name: Verify arch
+        run: lipo -info mihomo
+
+      - name: Upload compiled binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: mihomo-ios-arm64
+          path: mihomo
