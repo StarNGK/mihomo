@@ -2,7 +2,7 @@ name: Build Mihomo iOS arm64 Binary
 on:
   push:
     branches: [ Meta ]
-  workflow_dispatch: # 支持手动点按钮触发编译
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
         with:
           go-version: 1.23
 
-      - name: Configure Go Proxy (speed up download)
+      - name: Configure Go Proxy
         run: go env -w GOPROXY=https://goproxy.cn,direct
 
       - name: Resolve dependencies
@@ -27,9 +27,9 @@ jobs:
           export CGO_ENABLED=0
           export GOOS=ios
           export GOARCH=arm64
-          go build -o mihomo ./
+          go build -o mihomo ./cmd/mihomo
 
-      - name: Verify arch
+      - name: Verify architecture
         run: lipo -info mihomo
 
       - name: Upload compiled binary
